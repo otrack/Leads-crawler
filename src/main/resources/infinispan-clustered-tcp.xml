@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<infinispan
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="urn:infinispan:config:5.3 http://www.infinispan.org/schemas/infinispan-config-5.3.xsd"
+      xmlns="urn:infinispan:config:5.3">
+
+   <global>
+      <globalJmxStatistics enabled="true" jmxDomain="Infinispan" />
+      <transport>
+         <properties>
+            <property name="configurationFile" value="jgroups-tcp.xml" />
+         </properties>
+      </transport>
+   </global>
+
+   <default>
+      <locking concurrencyLevel="5000" />
+      <clustering mode="distributed"/>
+   </default>
+
+    <namedCache name="queue">
+        <clustering mode="replicated">
+            <sync />
+        </clustering>
+        <transaction
+                transactionMode="TRANSACTIONAL"
+                autoCommit="true"
+                />
+    </namedCache>
+
+
+</infinispan>
