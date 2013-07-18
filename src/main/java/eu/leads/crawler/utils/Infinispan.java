@@ -2,7 +2,7 @@ package eu.leads.crawler.utils;
 
 import com.googlecode.flaxcrawler.concurrent.Queue;
 import org.infinispan.Cache;
-import org.infinispan.atomic.AtomicTypeFactory;
+import org.infinispan.atomic.AtomicObjectFactory;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 
@@ -61,8 +61,8 @@ public class Infinispan {
 
         public InfinispanQueue(Cache cache){
             try {
-                AtomicTypeFactory factory = new AtomicTypeFactory(cache);
-                queue = (LinkedList)factory.newInstanceOf(LinkedList.class,"0");
+                AtomicObjectFactory factory = new AtomicObjectFactory(cache);
+                queue = (LinkedList)factory.getOrCreateInstanceOf(LinkedList.class, "0");
             } catch (Exception e) {
                 e.printStackTrace();
             }
