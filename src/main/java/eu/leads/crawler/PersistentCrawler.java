@@ -9,6 +9,7 @@ import com.likethecolor.alchemy.api.call.type.CallTypeUrl;
 import com.likethecolor.alchemy.api.entity.Response;
 import com.likethecolor.alchemy.api.entity.SentimentAlchemyEntity;
 import eu.leads.crawler.utils.Infinispan;
+import eu.leads.crawler.utils.PageRank;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -60,26 +61,41 @@ public class PersistentCrawler extends DefaultCrawler {
     protected void afterCrawl(CrawlerTask crawlerTask, Page page) {
         super.afterCrawl(crawlerTask, page);
 
-        System.out.println("Crawling "+page.getUrl().toString());
+        System.out.print(page.getUrl().toString());
 
         if ( page == null
              || page.getResponseCode() != HttpURLConnection.HTTP_OK
-             || ! isMatching(page))
+             || ! isMatching(page)){
+            System.out.println();
             return;
+        }
 
         if(client == null)
             return;
 
-        SentimentCall call = new SentimentCall(new CallTypeUrl(page.getUrl().toString()));
         try {
+
+            Double pagerank = (double) PageRank.get(page.getUrl().toString().toString());
+            System.out.print(" ("+pagerank+",");
+
+            SentimentCall call = new SentimentCall(new CallTypeUrl(page.getUrl().toString()));
             Response response = client.call(call);
             SentimentAlchemyEntity entity = (SentimentAlchemyEntity) response.iterator().next();
-            System.out.println(page.getUrl() + " : " + entity.getType().toString() + " = " + entity.getScore().toString());
-            if(entity.getType().equals(SentimentAlchemyEntity.TYPE.POSITIVE))
-                map.putIfAbsent(page.getUrl(), response);
-        } catch (IOException e) {
+            Double sentiment = Double.valueOf(entity.getScore().toString());
+            System.out.print(sentiment+")");
+
+            if(entity.getType().equals(SentimentAlchemyEntity.TYPE.POSITIVE)){
+                Double[] result = new Double[2];
+                result[0] = pagerank;
+                result[1] = sentiment;
+                map.putIfAbsent(page.getUrl(), result);
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+        System.out.println();
 
     }
 
