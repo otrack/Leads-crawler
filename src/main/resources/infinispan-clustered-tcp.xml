@@ -17,12 +17,16 @@
    <default>
       <locking concurrencyLevel="5000" />
       <clustering mode="distributed"/>
+       <eviction maxEntries="0" />
+       <expiration lifespan="600000" />
    </default>
 
-    <namedCache name="queue">
+    <namedCache name="objects">
         <clustering mode="replicated">
             <sync />
         </clustering>
+        <eviction maxEntries="0" />
+        <expiration lifespan="600000" />
         <transaction
                 transactionMode="TRANSACTIONAL"
                 autoCommit="true"

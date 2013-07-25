@@ -4,14 +4,20 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 
-public class PageRank {
+/**
+ *
+ * @author P. Sutra
+ *
+ */
+public class Web {
 
     /**
      * @param domain - (String)
      * @return PR rating (int) or -1 if unavailable or internal error happened.
      */
-    public static int get(String domain) {
+    public static int pagerank(String domain) {
 
         String result = "";
 

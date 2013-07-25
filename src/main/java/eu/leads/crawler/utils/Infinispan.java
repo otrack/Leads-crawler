@@ -5,28 +5,30 @@ import org.infinispan.Cache;
 import org.infinispan.atomic.AtomicObjectFactory;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.notifications.Listener;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import static eu.leads.crawler.utils.Digest.digest;
 import static java.lang.System.getProperties;
 
 /**
  *
- * This class implements a concurrent map and a concurrent queue on top of Infinispan.
+ * @author P. Sutra
  *
- * @author otrack
- * @since 4.0
  */
 public class Infinispan {
 
-    private static EmbeddedCacheManager manager;
-    private static ConcurrentMap map;
-    private static InfinispanQueue queue;
+    private static AtomicObjectFactory factory;
+    private static DefaultCacheManager manager;
 
-    static{
+    public static void start(){
         String infinispanConfig = getProperties().getProperty("infinispanConfigFile");
+
         if(infinispanConfig != null){
             try {
                 manager = new DefaultCacheManager(infinispanConfig);
@@ -37,19 +39,36 @@ public class Infinispan {
         }else{
             manager = new DefaultCacheManager();
         }
-        queue = new InfinispanQueue(manager.getCache("queue"));
-        map = manager.getCache();
-    }
-
-    public static ConcurrentMap getOrCreatePersistentMap() {
-        return map;
-    }
-
-    public static InfinispanQueue getOrCreateQueue(){
-        return queue;
+        manager.start();
 
     }
 
+    public static void stop(){
+        manager.stop();
+    }
+
+    public static synchronized ConcurrentMap getOrCreatePersistentMap(String name) {
+        return manager.getCache(name);
+    }
+
+    public static Queue getOrCreateQueue(String name){
+        initFactory();
+        return new InfinispanQueue("queue:"+name);
+    }
+
+    public static Set getOrCreateSet(String name){
+        initFactory();
+        return (Set) factory.getOrCreateInstanceOf(HashSet.class, "set:"+name);
+    }
+
+    public static void addListenerForMap(Object listener, ConcurrentMap map){
+        ((Cache)map).addListener(listener);
+    }
+
+    private static synchronized void initFactory(){
+        if(factory == null)
+            factory = new AtomicObjectFactory(manager.getCache("objects"));
+    }
 
     /**
      * This class implements a Flaxcrawler queue (com.googlecode.flaxcrawler.concurrent.Queue)
@@ -59,13 +78,8 @@ public class Infinispan {
 
         private LinkedList queue;
 
-        public InfinispanQueue(Cache cache){
-            try {
-                AtomicObjectFactory factory = new AtomicObjectFactory(cache);
-                queue = (LinkedList)factory.getOrCreateInstanceOf(LinkedList.class, "0");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        public InfinispanQueue(String name){
+            queue = (LinkedList)factory.getOrCreateInstanceOf(LinkedList.class, name,true,null,false);
         }
 
         public void add(Object obj) {
@@ -86,7 +100,11 @@ public class Infinispan {
         public int size() {
             return queue.size();
         }
-    }
 
+        @Override
+        public String toString(){
+            return queue.toString();
+        }
+    }
 
 }
