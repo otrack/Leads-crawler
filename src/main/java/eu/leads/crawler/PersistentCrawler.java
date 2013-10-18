@@ -36,7 +36,7 @@ public class PersistentCrawler extends DefaultCrawler {
 
         if ( page == null
              || page.getResponseCode() != HttpURLConnection.HTTP_OK
-             || ! isMatching(page)){  // this pages violated the crawler constriants (size, etc..).
+             || ! isMatching(page)){  // this pages violated the crawler constraints (size, etc..).
             return;
         }
 

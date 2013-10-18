@@ -33,7 +33,7 @@ import static java.lang.System.getProperties;
 public class PersistentListener {
 
     private static ConcurrentMap preprocessingMap = Infinispan.getOrCreatePersistentMap("preprocessingMap");
-    private static ConcurrentMap postrocessingMap = Infinispan.getOrCreatePersistentMap("postprocessingMap");
+    private static ConcurrentMap postprocessingMap = Infinispan.getOrCreatePersistentMap("postprocessingMap");
     private static Log log = LogFactory.getLog(PersistentListener.class.getName());
 
     private Client client;
@@ -97,8 +97,10 @@ public class PersistentListener {
             if(!isMatching(page))
                 return;
 
-            // Web and sentiment analysis
+            // Page rank
             Double pagerank = (double) Web.pagerank("http://" + url.toURI().getHost());
+
+            // Sentiment analysis
             SentimentCall call = new SentimentCall(new CallTypeUrl(url.toString()));
             Response response = client.call(call);
             SentimentAlchemyEntity entity = (SentimentAlchemyEntity) response.iterator().next();
@@ -106,8 +108,8 @@ public class PersistentListener {
 
             CrawlResult result = new CrawlResult(pagerank,sentiment);
             log.info("Processed " + url + " " + result);
-            // if(entity.getType().equals(SentimentAlchemyEntity.TYPE.NEGATIVE)){
-            postrocessingMap.putIfAbsent(url.toString(), result);
+
+            postprocessingMap.putIfAbsent(url.toString(), result);
 
         } catch (Exception e) {
             log.debug("An error while parsing a page.");
