@@ -109,6 +109,7 @@ public class PersistentListener {
             CrawlResult result = new CrawlResult(pagerank,sentiment);
             log.info("Processed " + url + " " + result);
 
+            // Insert the result into the output set
             postprocessingMap.putIfAbsent(url.toString(), result);
 
         } catch (Exception e) {
