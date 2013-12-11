@@ -1,14 +1,14 @@
 package eu.leads.crawler;
 
-import com.googlecode.flaxcrawler.CrawlerConfiguration;
-import com.googlecode.flaxcrawler.CrawlerController;
-import com.googlecode.flaxcrawler.concurrent.Queue;
-import com.googlecode.flaxcrawler.download.DefaultDownloader;
-import com.googlecode.flaxcrawler.download.DefaultDownloaderController;
-import com.googlecode.flaxcrawler.download.DefaultProxyController;
-import com.googlecode.flaxcrawler.parse.DefaultParser;
-import com.googlecode.flaxcrawler.parse.DefaultParserController;
+import eu.leads.crawler.concurrent.Queue;
+import eu.leads.crawler.download.DefaultDownloader;
+import eu.leads.crawler.download.DefaultDownloaderController;
+import eu.leads.crawler.download.DefaultProxyController;
+import eu.leads.crawler.parse.DefaultParser;
+import eu.leads.crawler.parse.DefaultParserController;
 import eu.leads.crawler.utils.Infinispan;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -17,9 +17,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import static eu.leads.crawler.utils.Infinispan.getOrCreateQueue;
 import static java.lang.System.getProperties;
@@ -39,6 +36,7 @@ public class PersistentCrawl {
         String seed = "http://www.economist.com/";
         ArrayList<String> words = new ArrayList<String>();
         int ncrawlers = 1;
+        int ndays = 31;
 
         try{
             Properties properties = getProperties();
@@ -68,6 +66,12 @@ public class PersistentCrawl {
             ncrawlers = Integer.valueOf(getProperties().getProperty("ncrawlers"));
             log.info("Using "+ncrawlers+" crawler(s)");
         }
+
+        if(getProperties().containsKey("ndays")){
+            ndays = Integer.valueOf(getProperties().getProperty("ndays"));
+            log.info("Document earler than "+ndays+" day(s)");
+        }
+
         proxies.add(Proxy.NO_PROXY);
         DefaultProxyController proxyController = new DefaultProxyController(proxies);
 
@@ -91,7 +95,7 @@ public class PersistentCrawl {
 
         try {
 
-            PersistentListener listener = new PersistentListener(words);
+            PersistentListener listener = new PersistentListener(words,ndays);
 
             for (int i = 0; i < ncrawlers; i++) {
                 PersistentCrawler crawler = new PersistentCrawler();

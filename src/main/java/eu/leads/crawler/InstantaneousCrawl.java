@@ -1,6 +1,9 @@
 package eu.leads.crawler;
 
+import eu.leads.crawler.model.Page;
 import eu.leads.crawler.utils.Infinispan;
+import org.infinispan.query.SearchManager;
+import org.infinispan.query.dsl.QueryFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -34,8 +37,16 @@ public class InstantaneousCrawl {
             e.printStackTrace();  // TODO: Customise this generated block
         }
 
-        ConcurrentMap<String,CrawlResult> postrocessingMap = Infinispan.getOrCreatePersistentMap("postprocessingMap");
+        // Example of Hibernate-based query on top of ispn
+        // http://infinispan.org/docs/6.0.x/user_guide/user_guide.html#_infinispan_s_query_dsl
+        SearchManager searchManager = org.infinispan.query.Search.getSearchManager(Infinispan.getOrCreatePersistentMap("preprocessingMap"));
+        QueryFactory qf = searchManager.getQueryFactory();
+        org.infinispan.query.dsl.Query query = qf.from(Page.class).having("domainName").like("%yahoo%").toBuilder().build();
+        for (Object page: query.list()) {
+              System.out.println(page);
+        }
 
+        ConcurrentMap<String,CrawlResult> postrocessingMap = Infinispan.getOrCreatePersistentMap("postprocessingMap");
         TreeMap<CrawlResult,String> sortedResults = new TreeMap(Collections.reverseOrder());
         for(String url : postrocessingMap.keySet()){
             sortedResults.put(postrocessingMap.get(url),url);

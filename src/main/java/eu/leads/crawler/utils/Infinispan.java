@@ -1,11 +1,10 @@
 package eu.leads.crawler.utils;
 
-import com.googlecode.flaxcrawler.concurrent.Queue;
+import eu.leads.crawler.concurrent.Queue;
 import org.infinispan.Cache;
+import org.infinispan.InvalidCacheUsageException;
 import org.infinispan.atomic.AtomicObjectFactory;
 import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.notifications.Listener;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -13,7 +12,6 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
-import static eu.leads.crawler.utils.Digest.digest;
 import static java.lang.System.getProperties;
 
 /**
@@ -47,7 +45,7 @@ public class Infinispan {
         manager.stop();
     }
 
-    public static synchronized ConcurrentMap getOrCreatePersistentMap(String name) {
+    public static synchronized Cache getOrCreatePersistentMap(String name) {
         return manager.getCache(name);
     }
 
@@ -58,28 +56,40 @@ public class Infinispan {
 
     public static Set getOrCreateSet(String name){
         initFactory();
-        return (Set) factory.getOrCreateInstanceOf(HashSet.class, "set:"+name);
+        try {
+            return (Set) factory.getInstanceOf(HashSet.class, "set:" + name);
+        } catch (InvalidCacheUsageException e) {
+        }
+        return  null;
     }
 
-    public static void addListenerForMap(Object listener, ConcurrentMap map){
+
+    public static void addListenerToMap(Object listener, ConcurrentMap map){
         ((Cache)map).addListener(listener);
     }
 
     private static synchronized void initFactory(){
         if(factory == null)
-            factory = new AtomicObjectFactory(manager.getCache("objects"));
+            try {
+                factory = new AtomicObjectFactory(manager.getCache("objects"));
+            } catch (InvalidCacheUsageException e) {
+                e.printStackTrace();  // TODO: Customise this generated block
+            }
     }
 
     /**
-     * This class implements a Flaxcrawler queue (com.googlecode.flaxcrawler.concurrent.Queue)
-     * on top of inifinispan using the AtomicTypeFactory facility.
+     * This class implements a Queue on top of inifinispan using the AtomicObjectFactory facility.
      */
     private static class InfinispanQueue implements Queue {
 
         private LinkedList queue;
 
         public InfinispanQueue(String name){
-            queue = (LinkedList)factory.getOrCreateInstanceOf(LinkedList.class, name,true,null,false);
+            try {
+                queue = (LinkedList)factory.getInstanceOf(LinkedList.class, name, true, null, false);
+            } catch (InvalidCacheUsageException e) {
+                e.printStackTrace();  // TODO: Customise this generated block
+            }
         }
 
         public void add(Object obj) {

@@ -1,8 +1,7 @@
 package eu.leads.crawler;
 
-import com.googlecode.flaxcrawler.DefaultCrawler;
-import com.googlecode.flaxcrawler.model.CrawlerTask;
-import com.googlecode.flaxcrawler.model.Page;
+import eu.leads.crawler.model.CrawlerTask;
+import eu.leads.crawler.model.Page;
 import eu.leads.crawler.utils.Infinispan;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,19 +23,13 @@ public class PersistentCrawler extends DefaultCrawler {
     public PersistentCrawler(){
     }
 
-    private boolean isMatching(Page page){
-        if(page.getContent() == null)
-            return false;
-        return true;
-    }
-
     @Override
     protected void afterCrawl(CrawlerTask crawlerTask, Page page) {
         super.afterCrawl(crawlerTask, page);
 
         if ( page == null
              || page.getResponseCode() != HttpURLConnection.HTTP_OK
-             || ! isMatching(page)){  // this pages violated the crawler constraints (size, etc..).
+             || page.getContent().isEmpty()){  // this pages violated the crawler constraints (size, etc..).
             return;
         }
 

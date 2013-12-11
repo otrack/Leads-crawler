@@ -1,6 +1,6 @@
 package eu.leads.crawler;
 
-import com.googlecode.flaxcrawler.model.Page;
+import eu.leads.crawler.model.Page;
 import com.likethecolor.alchemy.api.Client;
 import com.likethecolor.alchemy.api.call.SentimentCall;
 import com.likethecolor.alchemy.api.call.type.CallTypeUrl;
@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-import static eu.leads.crawler.utils.Infinispan.addListenerForMap;
+import static eu.leads.crawler.utils.Infinispan.addListenerToMap;
 import static java.lang.System.getProperties;
 
 /**
@@ -38,9 +38,10 @@ public class PersistentListener {
 
     private Client client;
     private List<String> words;
+    private int ndays;
 
 
-    public PersistentListener(List<String> l) throws IOException {
+    public PersistentListener(List<String> l, int d) throws IOException {
         if(getProperties().containsKey("sentimentAnalysisKeyFile")){
             String sentimentAnalysisKeyFile = getProperties().getProperty("sentimentAnalysisKeyFile");
             client = new Client(sentimentAnalysisKeyFile);
@@ -48,13 +49,14 @@ public class PersistentListener {
             throw new IOException("Incorrect properties file.");
         }
         words = l;
-        addListenerForMap(this,preprocessingMap);
+        ndays = d;
+        addListenerToMap(this, preprocessingMap);
     }
 
     public boolean isMatching(Page page){
 
         // check for key words.
-        String content = page.getContentString().toLowerCase();
+        String content = page.getContent().toLowerCase();
         for(String w : words){
             if(!content.contains(w.toLowerCase()))
                 return false;
@@ -69,7 +71,7 @@ public class PersistentListener {
             Date publication = org.apache.http.impl.cookie.DateUtils.parseDate(header);
             Calendar cal = Calendar.getInstance();
             cal.setTime(publication);
-            cal.add(Calendar.DATE, 2);
+            cal.add(Calendar.DATE, ndays);
             publication = cal.getTime();
             log.debug("Valid format for " + page.getHeaders());
             if(publication.after(now)){
