@@ -2,8 +2,8 @@
 
 <infinispan
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="urn:infinispan:config:5.3 http://www.infinispan.org/schemas/infinispan-config-5.3.xsd"
-      xmlns="urn:infinispan:config:5.3">
+      xsi:schemaLocation="urn:infinispan:config:6.0 http://www.infinispan.org/schemas/infinispan-config-6.0.xsd"
+      xmlns="urn:infinispan:config:6.0">
 
    <global>
       <globalJmxStatistics enabled="true" jmxDomain="Infinispan" />
@@ -16,9 +16,11 @@
 
    <default>
       <locking concurrencyLevel="5000" />
-      <clustering mode="distributed"/>
+      <clustering mode="distributed" />
        <eviction maxEntries="0" />
        <expiration lifespan="600000" />
+       <compatibility enabled="true" />
+       <indexing enabled="true" />
    </default>
 
     <namedCache name="objects">

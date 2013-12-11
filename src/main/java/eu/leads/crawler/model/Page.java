@@ -39,8 +39,8 @@ public class Page implements Serializable{
 
 
     public Page(){
-
     }
+
     /**
      * Creates an instance of the Page class.
      * @param url Page url
