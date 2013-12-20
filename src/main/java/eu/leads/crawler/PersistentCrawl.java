@@ -35,8 +35,9 @@ public class PersistentCrawl {
         List<Proxy> proxies = new ArrayList<Proxy>();
         String seed = "http://www.economist.com/";
         ArrayList<String> words = new ArrayList<String>();
+        int depth = 1;
         int ncrawlers = 1;
-        int ndays = 31;
+        int ndays = 365;
 
         try{
             Properties properties = getProperties();
@@ -49,6 +50,8 @@ public class PersistentCrawl {
         if(getProperties().containsKey("seed")){
             seed = getProperties().getProperty("seed");
             log.info("Seed : "+seed);
+        }else{
+            seed = "http://news.yahoo.com";
         }
 
         if(getProperties().containsKey("words")){
@@ -58,6 +61,13 @@ public class PersistentCrawl {
             }
         }else{
             words.add("Obama");
+        }
+
+        if(getProperties().containsKey("depth")){
+            depth = Integer.valueOf(getProperties().getProperty("depth"));
+            log.info("Depth : "+seed);
+        }else{
+            depth = 1;
         }
 
         Infinispan.start();
@@ -91,7 +101,8 @@ public class PersistentCrawl {
         configuration.setMaxHttpErrors(HttpURLConnection.HTTP_BAD_GATEWAY, 10);
         configuration.setMaxLevel(3);
         configuration.setMaxParallelRequests(5);
-        configuration.setPolitenessPeriod(500);
+        configuration.setPolitenessPeriod(100);
+        configuration.setMaxLevel(depth);
 
         try {
 
@@ -111,17 +122,11 @@ public class PersistentCrawl {
             crawlerController.setQueue(q);
             if(!seed.equals("") && q.size()==0 ) crawlerController.addSeed(new URL(seed));
             crawlerController.start();
-            crawlerController.join();
+            crawlerController.join();  // wait forever here
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        Infinispan.stop();
-
-        System.out.println("Terminated.");
-
-        while(true);
 
     }
 

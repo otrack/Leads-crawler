@@ -18,7 +18,6 @@
       <locking concurrencyLevel="5000" />
       <clustering mode="distributed" />
        <eviction maxEntries="0" />
-       <expiration lifespan="600000" />
        <compatibility enabled="true" />
        <indexing enabled="true" />
    </default>
@@ -28,7 +27,6 @@
             <sync />
         </clustering>
         <eviction maxEntries="0" />
-        <expiration lifespan="600000" />
         <transaction
                 transactionMode="TRANSACTIONAL"
                 autoCommit="true"
