@@ -23,7 +23,7 @@ import static java.lang.System.getProperties;
 
 /**
  *
- * @author P. Sutra
+ * @author Pierre Sutra
  *
  */
 public class PersistentCrawl {
