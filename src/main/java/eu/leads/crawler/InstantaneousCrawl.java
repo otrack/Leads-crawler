@@ -34,8 +34,8 @@ public class InstantaneousCrawl {
             e.printStackTrace();  // TODO: Customise this generated block
         }
 
-        // Example of Hibernate-based query on top of ispn
-        // http://infinispan.org/docs/6.0.x/user_guide/user_guide.html#_infinispan_s_query_dsl
+//        Example of Hibernate-based query on top of ispn
+//        http://infinispan.org/docs/6.0.x/user_guide/user_guide.html#_infinispan_s_query_dsl
 //        SearchManager searchManager = org.infinispan.query.Search.getSearchManager(Infinispan.getOrCreatePersistentMap("preprocessingMap"));
 //        QueryFactory qf = searchManager.getQueryFactory();
 //        org.infinispan.query.dsl.Query query = qf.from(Page.class).having("domainName").like("%yahoo%").toBuilder().build();
