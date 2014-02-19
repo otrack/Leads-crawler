@@ -1,13 +1,13 @@
 package eu.leads.crawler;
 
-import eu.leads.crawler.DefaultCrawler;
-import org.junit.Test;
 import eu.leads.crawler.download.DefaultDownloaderController;
 import eu.leads.crawler.model.CrawlerTask;
 import eu.leads.crawler.model.Page;
 import eu.leads.crawler.parse.DefaultParserController;
-import org.junit.Ignore;
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  *

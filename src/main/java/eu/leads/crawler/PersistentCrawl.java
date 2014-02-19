@@ -35,7 +35,7 @@ public class PersistentCrawl {
         List<Proxy> proxies = new ArrayList<Proxy>();
         String seed = "http://www.economist.com/";
         ArrayList<String> words = new ArrayList<String>();
-        int depth = 1;
+        int depth = 100;
         int ncrawlers = 1;
         int ndays = 365;
 

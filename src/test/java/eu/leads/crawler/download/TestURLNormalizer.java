@@ -1,8 +1,9 @@
 package eu.leads.crawler.download;
 
+
+import eu.leads.crawler.parse.URLNormalizer;
 import org.junit.Ignore;
 import org.junit.Test;
-import eu.leads.crawler.parse.URLNormalizer;
 
 /**
  *

@@ -1,18 +1,20 @@
 package eu.leads.crawler.parse;
 
-import eu.leads.crawler.parse.DefaultParser;
+import eu.leads.crawler.download.DefaultDownloader;
+import eu.leads.crawler.download.DefaultProxyController;
+import eu.leads.crawler.download.DownloadException;
+import eu.leads.crawler.model.Page;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Ignore;
-import org.junit.Test;
-import eu.leads.crawler.download.DefaultDownloader;
-import eu.leads.crawler.download.DefaultProxyController;
-import eu.leads.crawler.download.DownloadException;
-import eu.leads.crawler.model.Page;
-import static org.junit.Assert.*;
+
+import static junit.framework.TestCase.assertNotNull;
+
 
 /**
  *
@@ -45,4 +47,6 @@ public class TestDefaultParser {
             System.out.println(url.toString());
         }
     }
+
+
 }

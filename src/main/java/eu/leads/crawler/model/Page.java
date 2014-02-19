@@ -4,10 +4,10 @@ import eu.leads.crawler.parse.URLNormalizer;
 import eu.leads.crawler.utils.UrlUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.search.annotations.*;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-import javax.persistence.Id;
-import java.io.Serializable;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -18,28 +18,29 @@ import java.util.Map;
 
 /**
  * Represents a web page
- * @author ameshkov
+ * @author ameshkov, pierre sutra
  */
 
-@Indexed
-public class Page implements Serializable{
+@JsonAutoDetect
+
+public class Page{
 
     static Log log = LogFactory.getLog(Page.class);
 
-    @Field(index= Index.YES, analyze= Analyze.NO, store= Store.NO) @Id private URL url;
-    @Field(index= Index.YES, analyze= Analyze.NO, store= Store.NO) private String domainName;
-    @Field(index= Index.NO, analyze= Analyze.NO, store= Store.YES) private String content;
-    private Map<String, String> headers;
-    private int responseCode;
-    private String charset;
-    private long responseTime;
-    private List<URL> links;
-    private String title;
-    private Map<String, Object> parseResults = new HashMap<String, Object>();
+    private @JsonProperty("url") URL url;
+    private @JsonProperty("domainName") String domainName;
+    private @JsonProperty("content") String content;
+    private @JsonProperty("headers") Map<String, String> headers = new HashMap<String, String>();
+    private @JsonProperty("responseCode") int responseCode;
+    private @JsonProperty("charset") String charset;
+    private @JsonProperty("responseTime") long responseTime;
+
+    private @JsonIgnore List<URL> links;
+    private @JsonIgnore String title;
+    private @JsonIgnore Map<String, Object> parseResults = new HashMap<String, Object>();
 
 
-    public Page(){
-    }
+    public Page(){}
 
     /**
      * Creates an instance of the Page class.
@@ -50,12 +51,18 @@ public class Page implements Serializable{
      * @param responseTime Reponse time
      * @param content Page content
      */
-    public Page(URL url, Map<String, String> headers, int responseCode, String charset, long responseTime, byte[] content) {
+    public Page(URL url,
+                Map<String, String> headers,
+                int responseCode,
+                String charset,
+                long responseTime,
+                byte[] content) {
         this.url = url;
         this.headers = headers;
         this.responseCode = responseCode;
         this.charset = charset;
         this.responseTime = responseTime;
+
         try {
             this.content = Charset.forName(charset).newDecoder().
                     onMalformedInput(CodingErrorAction.REPLACE).
@@ -89,6 +96,11 @@ public class Page implements Serializable{
      */
     public URL getUrl() {
         return url;
+    }
+
+
+    public void setUrl(URL url){
+        this.url = url;
     }
 
     /**
@@ -144,6 +156,7 @@ public class Page implements Serializable{
      * Location URL if request was redirected. Otherwise returns {@code null}
      * @return
      */
+    @JsonIgnore
     public URL getRedirectUrl() {
         if (responseCode >= 300 && responseCode < 400) {
             try {
@@ -163,6 +176,7 @@ public class Page implements Serializable{
      * Returns Content-Encoding header
      * @return
      */
+    @JsonIgnore
     public String getContentEncoding() {
         return headers == null ? null : getHeader("content-encoding");
     }
@@ -221,6 +235,7 @@ public class Page implements Serializable{
      * @param key
      * @param result
      */
+    @JsonIgnore
     public void addParseResult(String key, Object result) {
         this.parseResults.put(key, result);
     }

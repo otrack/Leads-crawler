@@ -5,7 +5,9 @@ import eu.leads.crawler.model.Page;
 import eu.leads.crawler.utils.Infinispan;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.concurrent.ConcurrentMap;
 
@@ -17,6 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 public class PersistentCrawler extends DefaultCrawler {
 
     private static ConcurrentMap preprocessingMap = Infinispan.getOrCreatePersistentMap("preprocessingMap");
+
+    private static ObjectMapper mapper = new ObjectMapper();
 
     private static Log log = LogFactory.getLog(PersistentCrawler.class.getName());
 
@@ -35,7 +39,11 @@ public class PersistentCrawler extends DefaultCrawler {
 
         log.info("Crawled: " + page.getUrl().toString());
 
-        preprocessingMap.putIfAbsent(page.getUrl().toString(), page);
+        try {
+            preprocessingMap.putIfAbsent(page.getUrl().toString(), mapper.writeValueAsString(page));
+        } catch (IOException e) {
+            e.printStackTrace();  // TODO: Customise this generated block
+        }
 
     }
 
@@ -45,8 +53,8 @@ public class PersistentCrawler extends DefaultCrawler {
             log.debug("Page already crawled: " + task.getUrl().toString() + " ; thrashing.");
             return false;
         }
-        // return super.shouldCrawl(task,parent);
-        return task.getDomain() != null && parent.getDomain() != null;
+        return super.shouldCrawl(task,parent);
+        // return task.getDomain() != null && parent.getDomain() != null;
     }
 
 }

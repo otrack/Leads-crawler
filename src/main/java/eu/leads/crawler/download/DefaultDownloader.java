@@ -386,6 +386,7 @@ public class DefaultDownloader implements Downloader {
         // Setting response headers
         for (String header : connection.getHeaderFields().keySet()) {
             String headerValue = connection.getHeaderField(header);
+            if(header==null) header="";
             log.debug("Response header for " + connection.getURL() + " " + header + "=" + headerValue);
             responseHeaders.put(header == null ? null : header.toLowerCase(), headerValue);
         }

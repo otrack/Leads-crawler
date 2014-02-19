@@ -1,15 +1,15 @@
 package eu.leads.crawler.proxy;
 
-import eu.leads.crawler.proxy.GrabbingProxyController;
-import eu.leads.crawler.proxy.ProxyGrabber;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static junit.framework.TestCase.assertTrue;
 
 /**
  *
